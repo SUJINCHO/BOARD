@@ -8,7 +8,7 @@
     @$join = $_GET['join'];
     if (isset($_GET['IDInput']) == false) {
         echo "<form action='join.php' method='get'>
-           <table>
+           <table> 
                <tr>
                    <td>아이디</td>
                    <td><input type='text' name='IDInput'></td>

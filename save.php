@@ -5,7 +5,7 @@ $query = "select * from board_9_11";
 $result = mysqli_query($Connect,$query);
 $title = $_GET['title'];
 $text = $_GET['text'];
-
+//수정된 글 저장
 $TEXT = nl2br($text);
 $query = "update board_9_11 set subject='$title' WHERE board_id =".$_SESSION['alter'];
 $result = mysqli_query($Connect, $query);

@@ -8,12 +8,10 @@ $query = "select * from board_9_11 where board_id =".$_SESSION['alter'];
 $result = mysqli_query($Connect,$query);
 $row = mysqli_fetch_array($result);
 
+//수정과 삭제
     switch ($alter) {
         case '수정':
-
-            echo "<div class='row'>
-        <div class='col-lg-6'>
-            <div class='well bs-component'>
+            echo "<div class='well bs-component' style='width: 500px; margin: 0 auto'>
                 <form  action='save.php' method='get' class='form-horizontal'>
                     <fieldset>
                         <legend>글수정</legend>
@@ -38,9 +36,7 @@ $row = mysqli_fetch_array($result);
                     </fieldset>
                 </form>
             </div>
-        </div>
-    </div>
-</div>";
+        </div>";
             break;
         case '삭제':
             $query = "delete from board_9_11 where board_id =" . $_SESSION['alter'];

@@ -3,6 +3,8 @@ echo "<link rel='stylesheet' media='screen' href='bootstrap/bootstrap.min.css'/>
 $Connect = mysqli_connect("localhost", "root","autoset","ycj_test");
 
 @$search = $_GET['search'];//검색
+/*$_SESSION['search'] = $search;
+$search = $_SESSION['search'];*/
 /*=========================================================================================================*/
 /*---로그인---*/
 echo "<nav class='navbar navbar-inverse'>
@@ -10,9 +12,10 @@ echo "<nav class='navbar navbar-inverse'>
 unset($_SESSION["agein"]);
 if (isset($_SESSION['loginOK']) == false) {
     echo "<li><a href='login.php'>로그인</a></li>
-           <li><a href='join.php'>회원가입</a></li>
+           <!--<li><a href='join.php'>회원가입</a></li>-->
           ";
 }
+//로그아웃
 else {
     echo "<li><a class='nav navbar-nav2'>환영합니다. ".$_SESSION['loginOK']." 님</a></li>";
     echo "<li><a href='login.php?LogOut=로그아웃'>로그아웃</a></li>";
@@ -20,19 +23,30 @@ else {
 echo "</ul>";
 /*=========================================================================================================*/
 /*---게시글 수---*/
-//if (isset($_GET['search']) == false) {
-    $query = "select * from board_9_11";
-    $result = mysqli_query($Connect,$query);
 
-    $data = mysqli_num_rows($result);
-/*}
-else if (isset($_GET['search']) == true){
+if (isset($_GET['search']) == true ){
+    $_SESSION['search'] = $_GET['search'];
+    $search = $_SESSION['search'];
     $query = "select * from board_9_11 where subject = '$search'";
     $result = mysqli_query($Connect,$query);
     $data = mysqli_num_rows($result);
-}*/
 
-echo "<div style='float: right'><form class='navbar-form navbar-left' role='search' action='list.php' method='get'>
+}
+else if(isset($_SESSION['search']) == true){
+    $search = $_SESSION['search'];
+    $query = "select * from board_9_11 where subject = '$search'";
+    $result = mysqli_query($Connect,$query);
+    $data = mysqli_num_rows($result);
+}
+else {
+    $query = "select * from board_9_11";
+    $result = mysqli_query($Connect,$query);
+    $data = mysqli_num_rows($result);
+}
+
+//검색 input
+echo "<div style='float: right'>
+<form class='navbar-form navbar-left' role='search' action='list.php' method='get'>
  <div class='form-group'>
 <input type='text' name='search' class='form-control' placeholder='Search'>
 </div>
@@ -56,12 +70,12 @@ if(isset($_GET['PageNumber']) == true) {
 }
 
 //버튼
-/*if ($BlockInPage >= $PageTheNumber){
+if (isset($_SESSION['search']) == true && $BlockInPage >= $PageTheNumber){
     $_SESSION['start']  = 1;
     $_SESSION['end']    = $PageTheNumber;
-}
-else {*/
 
+}
+else {
     if ($PageNationBlock == '다음') {
         if ($_SESSION['end'] != $PageTheNumber) {
             $start = $_SESSION['start'] + $BlockInPage;
@@ -84,36 +98,35 @@ else {*/
     else {
         $start = 1;
         $end = $BlockInPage;
-
     }
-//}
-
-
-if (isset($_SESSION['PageNation']) == false){
-    $_SESSION['PageNation'] = 1;
 }
-$OutputData = $Page * ($_SESSION['PageNation']-1);//페이지 번호에 따른 출력될 데이터
-
 /*=========================================================================================================*/
 /*---검색---*/
-if (isset($_GET['search']) == true){
-    $query      = "select * from board_9_11 where subject = '$search'";
+if (isset($_SESSION['search']) == true){
+
+    if (isset($_SESSION['PageNation']) == false){
+        $_SESSION['PageNation'] = 1;
+    }
+    $OutputData = $Page * ($_SESSION['PageNation']-1);//페이지 번호에 따른 출력될 데이터
+
+    $OutputData = $Page * ($_SESSION['PageNation']-1);//페이지 번호에 따른 출력될 데이터
+    $query      = "select * from board_9_11 where subject = '$search' order by reg_date desc limit $OutputData, $Page";
     $result     = mysqli_query($Connect,$query);
 }
-else if (isset($_GET['search']) == false) {
+else if (isset($_SESSION['search']) == false) {
+
+    if (isset($_SESSION['PageNation']) == false){
+        $_SESSION['PageNation'] = 1;
+    }
+    $OutputData = $Page * ($_SESSION['PageNation']-1);//페이지 번호에 따른 출력될 데이터
+
     $query      = "select * from board_9_11 order by reg_date desc limit $OutputData, $Page";
     $result     = mysqli_query($Connect, $query);
 }
 
 /*=========================================================================================================*/
 /*---테이블 출력---*/
-/*echo " <div class='bs-docs-section'>
-        <div class='row'>
-          <div class='col-lg-12'>
-            <div class='page-header'>
-              <h1 id='tables'>Tables </h1>
-              게시글 수 ".$data."
-            </div>";*/
+
 echo "<div style='width:900px; margin:0 auto'>
               <h1 id='tables'>게시판 </h1>
               <b style='float: right'>게시글 수 : ".$data."</b></div>";
@@ -139,45 +152,52 @@ echo "</table><br>";
 /*=========================================================================================================*/
 /*---글쓰기---*/
 if (isset($_SESSION["loginOK"]) == true) {
-   echo "<ul class='pagination'  style=' float: right'>";
+    echo "<ul class='pagination'  style=' float: right'>";
     echo "<li><a href='WRITE.html'>글쓰기</a>";
-   echo "</ul>";
+    echo "</ul>";
 }
 echo "</div>";
 /*=========================================================================================================*/
 /*---페이지 출력---*/
 echo "<div style='width: 900px; margin: 0 auto;text-align: center'>";
 echo "<ul class='pagination' >";
-if (isset($_GET['search']) == true){
-    echo "<li><a href='list.php'>새로고침</a></li>";
-}
-else {
+
 //이전 블럭
-    if (@$_SESSION['start'] > 1) {
-        echo "<li><a href='list.php?PageNationInBlock=이전'><이전</a></li>";
-    }
+if (@$_SESSION['start'] > 1) {
+    echo "<li><a href='list.php?PageNationInBlock=이전'><이전</a></li>";
+}
 //페이지 번호 출력
 //세션이 있을경우 저장된 페이지부터 출력
-    if (isset($_SESSION['start']) == true) {
-        for ($Number = $_SESSION['start']; $Number <= $_SESSION['end']; $Number++) {
-            echo "<li><a href='list.php?PageNumber=$Number'>$Number</a></li>";
-        }
-    } //세션이 없을 경우
-    else {
-        for ($Number = $start; $Number <= $BlockInPage; $Number++) {
-            echo "<li><a href='list.php?PageNumber=$Number'>$Number</a></li>";
-        }
-        $_SESSION['start'] = $start;
-        $_SESSION['end'] = $end;
+if (isset($_SESSION['start']) == true) {
+    for ($Number = $_SESSION['start']; $Number <= $_SESSION['end']; $Number++) {
+        echo "<li><a href='list.php?PageNumber=$Number'>$Number</a></li>";
     }
+} //세션이 없을 경우
+else {
+    for ($Number = $start; $Number <= $BlockInPage; $Number++) {
+        echo "<li><a href='list.php?PageNumber=$Number'>$Number</a></li>";
+    }
+    $_SESSION['start'] = $start;
+    $_SESSION['end'] = $end;
+}
 
 // 다음 블럭
-    if ($_SESSION['end'] < $PageTheNumber) {
-        echo "<li><a href='list.php?PageNationInBlock=다음'>다음 ></a></li>";
-    }
+if ($_SESSION['end'] < $PageTheNumber) {
+    echo "<li><a href='list.php?PageNationInBlock=다음'>다음 ></a></li>";
+}
+if (isset($_SESSION['search']) == true){
+    echo "<li><a href='list.php?unset=새로고침'>새로고침</a></li>";
+}
+if (@$_GET['unset'] == '새로고침'){
+    unset($_SESSION['search']);
+    unset($_SESSION['start']);
+    //페이지 초기화
+    $start = 1;
+    $end = $BlockInPage;
+    $_SESSION['PageNation'] = 1;//현재 패이지 1로 초기화
+    //새로고침
+    echo "<script>location.assign('list.php')</script>";
 }
 echo "</ul>";
 echo "</div>";
-
-
 ?>

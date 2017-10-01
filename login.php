@@ -9,9 +9,8 @@ $user_info_result = mysqli_query($Connect,$query);
 $ox = false;
 //로그인
 if (isset($_GET['ID']) == false) {
-    echo "<br><div class='row' style='width: auto; margin: 0 auto'>
-          <div class='col-lg-6'>
-            <div class='well bs-component'>
+    echo "<br>
+            <div class='well bs-component' style='width: 450px; margin: 0 auto'>
               <form class='form-horizontal' action='login.php' method='get'>
                 <fieldset>
                   <legend>로그인</legend>
@@ -35,9 +34,7 @@ if (isset($_GET['ID']) == false) {
                    </div>
                 </fieldset>
               </form>
-            </div>
-          </div>
-        </div>";
+            </div>";
 }
 else {
     $ID = $_GET['ID'];
@@ -47,8 +44,8 @@ else {
             if ($log[1] == $PW){ // 페스워드가 맞을경우
                 echo "<script>alert('로그인 되었습니다.'); location.assign('list.php')</script>";
                 $_SESSION["user_ID"] = $log[1];
-                $_SESSION["loginOK"] = $log[2];
-                $ox = true;
+                $_SESSION["loginOK"] = $log[2];//사용자 이름 저장
+                $ox = true;//로그인이 정상적으로 이루어졌을 때
             }
         }
     }
