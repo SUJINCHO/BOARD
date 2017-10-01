@@ -23,7 +23,7 @@ else {
 echo "</ul>";
 /*=========================================================================================================*/
 /*---게시글 수---*/
-
+//검색하였을때
 if (isset($_GET['search']) == true ){
     $_SESSION['search'] = $_GET['search'];
     $search = $_SESSION['search'];
@@ -32,12 +32,14 @@ if (isset($_GET['search']) == true ){
     $data = mysqli_num_rows($result);
 
 }
+//검색 된상태에서의 페이지네이션
 else if(isset($_SESSION['search']) == true){
     $search = $_SESSION['search'];
     $query = "select * from board_9_11 where subject = '$search'";
     $result = mysqli_query($Connect,$query);
     $data = mysqli_num_rows($result);
 }
+//검색 X
 else {
     $query = "select * from board_9_11";
     $result = mysqli_query($Connect,$query);
